@@ -1,175 +1,102 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using GestionSalle.Models;
+using GestionSalle.Services;
+using GestionSalle.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GestionSalle.Controllers
 {
+    [Authorize]
     public class MembresController : Controller
     {
-        private readonly SalleDbContext _context;
+        private readonly IMembreService _service;
+        public MembresController(IMembreService service) { _service = service; }
 
-        public MembresController(SalleDbContext context)
+        [AllowAnonymous]
+        public async Task<IActionResult> Index(string? q, string? statut)
         {
-            _context = context;
+            var list = await _service.ListMembresAsync();
+            return View(list);
         }
 
-        // GET: Membres
-        public async Task<IActionResult> Index()
-        {
-            var salleDbContext = _context.Membres.Include(m => m.IdEntraineurNavigation).Include(m => m.IdPlanNavigation).Include(m => m.IdUtilisateurNavigation);
-            return View(await salleDbContext.ToListAsync());
-        }
-
-        // GET: Membres/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var membre = await _context.Membres
-                .Include(m => m.IdEntraineurNavigation)
-                .Include(m => m.IdPlanNavigation)
-                .Include(m => m.IdUtilisateurNavigation)
-                .FirstOrDefaultAsync(m => m.IdMembre == id);
-            if (membre == null)
-            {
-                return NotFound();
-            }
-
-            return View(membre);
+            if (id == null) return NotFound();
+            var dto = await _service.GetMembreByIdAsync(id.Value);
+            if (dto == null) return NotFound();
+            return View(dto);
         }
 
-        // GET: Membres/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            ViewData["IdEntraineur"] = new SelectList(_context.Entraineurs, "IdEntraineur", "IdEntraineur");
-            ViewData["IdPlan"] = new SelectList(_context.PlanAbonnements, "IdPlan", "IdPlan");
-            ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "IdUtilisateur");
             return View();
         }
 
-        // POST: Membres/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdMembre,NomComplet,Email,Telephone,DateInscription,Sexe,Adresse,IdPlan,IdEntraineur,Statut,IdUtilisateur")] Membre membre)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create(MembreCreateDto dto)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(dto);
+            try
             {
-                _context.Add(membre);
-                await _context.SaveChangesAsync();
+                await _service.CreateMembreAsync(dto);
+                TempData["Success"] = "Membre created";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdEntraineur"] = new SelectList(_context.Entraineurs, "IdEntraineur", "IdEntraineur", membre.IdEntraineur);
-            ViewData["IdPlan"] = new SelectList(_context.PlanAbonnements, "IdPlan", "IdPlan", membre.IdPlan);
-            ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "IdUtilisateur", membre.IdUtilisateur);
-            return View(membre);
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(dto);
+            }
         }
 
-        // GET: Membres/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var membre = await _context.Membres.FindAsync(id);
-            if (membre == null)
-            {
-                return NotFound();
-            }
-            ViewData["IdEntraineur"] = new SelectList(_context.Entraineurs, "IdEntraineur", "IdEntraineur", membre.IdEntraineur);
-            ViewData["IdPlan"] = new SelectList(_context.PlanAbonnements, "IdPlan", "IdPlan", membre.IdPlan);
-            ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "IdUtilisateur", membre.IdUtilisateur);
-            return View(membre);
+            if (id == null) return NotFound();
+            var dto = await _service.GetMembreByIdAsync(id.Value);
+            if (dto == null) return NotFound();
+            return View(dto);
         }
 
-        // POST: Membres/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdMembre,NomComplet,Email,Telephone,DateInscription,Sexe,Adresse,IdPlan,IdEntraineur,Statut,IdUtilisateur")] Membre membre)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id, MembreUpdateDto dto)
         {
-            if (id != membre.IdMembre)
+            if (!ModelState.IsValid) return View(dto);
+            try
             {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(membre);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MembreExists(membre.IdMembre))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _service.UpdateMembreAsync(id, dto);
+                TempData["Success"] = "Membre updated";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdEntraineur"] = new SelectList(_context.Entraineurs, "IdEntraineur", "IdEntraineur", membre.IdEntraineur);
-            ViewData["IdPlan"] = new SelectList(_context.PlanAbonnements, "IdPlan", "IdPlan", membre.IdPlan);
-            ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "IdUtilisateur", membre.IdUtilisateur);
-            return View(membre);
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(dto);
+            }
         }
 
-        // GET: Membres/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var membre = await _context.Membres
-                .Include(m => m.IdEntraineurNavigation)
-                .Include(m => m.IdPlanNavigation)
-                .Include(m => m.IdUtilisateurNavigation)
-                .FirstOrDefaultAsync(m => m.IdMembre == id);
-            if (membre == null)
-            {
-                return NotFound();
-            }
-
-            return View(membre);
-        }
-
-        // POST: Membres/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
         {
-            var membre = await _context.Membres.FindAsync(id);
-            if (membre != null)
+            try
             {
-                _context.Membres.Remove(membre);
+                await _service.DeleteMembreAsync(id);
+                TempData["Success"] = "Membre deleted";
             }
-
-            await _context.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool MembreExists(int id)
-        {
-            return _context.Membres.Any(e => e.IdMembre == id);
         }
     }
 }

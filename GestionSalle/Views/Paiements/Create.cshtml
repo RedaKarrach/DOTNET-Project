@@ -1,0 +1,32 @@
+@model GestionSalle.DTOs.PaiementCreateDto
+
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+ ViewData["Title"] = "Nouveau Paiement";
+}
+
+<h1>Nouveau Paiement</h1>
+
+<form asp-action="Create" method="post">
+ <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+ <div class="mb-3">
+ <label asp-for="IdMembre" class="form-label">Membre</label>
+ <select asp-for="IdMembre" class="form-control" asp-items="@(ViewData["Membres"] as IEnumerable<SelectListItem>)">
+ <option value="">-- Sélectionner un membre --</option>
+ </select>
+ <span asp-validation-for="IdMembre" class="text-danger"></span>
+ </div>
+ <div class="mb-3">
+ <label asp-for="Montant" class="form-label"></label>
+ <input asp-for="Montant" class="form-control" />
+ <span asp-validation-for="Montant" class="text-danger"></span>
+ </div>
+ <div class="mb-3">
+ <label asp-for="Methode" class="form-label">Méthode</label>
+ <select asp-for="Methode" class="form-control" asp-items="@(ViewData["Methodes"] as IEnumerable<SelectListItem>)">
+ <option value="">-- Sélectionner une méthode --</option>
+ </select>
+ <span asp-validation-for="Methode" class="text-danger"></span>
+ </div>
+ <button type="submit" class="btn btn-primary">Enregistrer</button>
+</form>

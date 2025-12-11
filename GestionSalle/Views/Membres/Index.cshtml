@@ -1,89 +1,66 @@
-﻿@model IEnumerable<GestionSalle.Models.Membre>
+﻿@model IEnumerable<GestionSalle.DTOs.MembreListDto>
 
 @{
-    ViewData["Title"] = "Index";
+ ViewData["Title"] = "Membres";
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+ <h1>Membres</h1>
+ <div class="d-flex gap-2">
+ <input id="searchInput" class="form-control" style="width:250px" placeholder="Rechercher..." oninput="searchTable()" />
+ <button class="btn btn-outline-secondary" onclick="exportTableToCSV('membres.csv')">Export CSV</button>
+ <button class="btn btn-outline-secondary" onclick="printTable()">Print</button>
+ @if (User?.IsInRole("Admin") ?? false)
+ {
+ <a asp-action="Create" class="btn btn-success">Create New</a>
+ }
+ </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NomComplet)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telephone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DateInscription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sexe)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Adresse)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Statut)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdEntraineurNavigation)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdPlanNavigation)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdUtilisateurNavigation)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
+@if (!(User?.IsInRole("Admin") ?? false))
+{
+ <div class="alert alert-info">Seuls les administrateurs peuvent créer, modifier ou supprimer des membres. Connectez-vous en tant qu'administrateur pour effectuer ces opérations.</div>
+}
+
+<div class="table-responsive">
+ <table class="table table-hover">
+ <thead>
+ <tr>
+ <th>ID</th>
+ <th>Nom</th>
+ <th>Email</th>
+ <th>Téléphone</th>
+ <th>Statut</th>
+ <th></th>
+ </tr>
+ </thead>
+ <tbody>
 @foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.NomComplet)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Telephone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateInscription)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sexe)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Adresse)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Statut)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdEntraineurNavigation.IdEntraineur)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdPlanNavigation.IdPlan)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdUtilisateurNavigation.IdUtilisateur)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.IdMembre">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IdMembre">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdMembre">Delete</a>
-            </td>
-        </tr>
+ <tr>
+ <td>@item.IdMembre</td>
+ <td>@item.NomComplet</td>
+ <td>@item.Email</td>
+ <td>@item.Telephone</td>
+ <td>@item.Statut</td>
+ <td>
+ <a asp-action="Details" asp-route-id="@item.IdMembre" class="me-2">Details</a>
+ @if (User?.IsInRole("Admin") ?? false)
+ {
+ <a asp-action="Edit" asp-route-id="@item.IdMembre" class="me-2">Edit</a>
+
+ <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">
+ <input type="hidden" name="id" value="@item.IdMembre" />
+ @Html.AntiForgeryToken()
+ <button type="submit" class="btn btn-link p-0 text-danger">Delete</button>
+ </form>
+ }
+ </td>
+ </tr>
 }
-    </tbody>
-</table>
+ </tbody>
+ </table>
+</div>
+
+@section Scripts {
+ <script src="~/js/site.js" asp-append-version="true"></script>
+}
