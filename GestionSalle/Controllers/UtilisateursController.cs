@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GestionSalle.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GestionSalle.Controllers
 {
+    [Authorize]
     public class UtilisateursController : Controller
     {
         private readonly SalleDbContext _context;
@@ -19,12 +21,14 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Utilisateurs
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Utilisateurs.ToListAsync());
         }
 
         // GET: Utilisateurs/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,6 +47,7 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Utilisateurs/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -53,6 +58,7 @@ namespace GestionSalle.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("IdUtilisateur,NomUtilisateur,MotDePasse,Role,DateCreation")] Utilisateur utilisateur)
         {
             if (ModelState.IsValid)
@@ -65,6 +71,7 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Utilisateurs/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -85,6 +92,7 @@ namespace GestionSalle.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("IdUtilisateur,NomUtilisateur,MotDePasse,Role,DateCreation")] Utilisateur utilisateur)
         {
             if (id != utilisateur.IdUtilisateur)
@@ -116,6 +124,7 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Utilisateurs/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -136,6 +145,7 @@ namespace GestionSalle.Controllers
         // POST: Utilisateurs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var utilisateur = await _context.Utilisateurs.FindAsync(id);

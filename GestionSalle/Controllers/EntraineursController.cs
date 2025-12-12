@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GestionSalle.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GestionSalle.Controllers
 {
+    [Authorize]
     public class EntraineursController : Controller
     {
         private readonly SalleDbContext _context;
@@ -19,6 +21,7 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Entraineurs
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var salleDbContext = _context.Entraineurs.Include(e => e.IdUtilisateurNavigation);
@@ -26,6 +29,7 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Entraineurs/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,6 +49,7 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Entraineurs/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["IdUtilisateur"] = new SelectList(_context.Utilisateurs, "IdUtilisateur", "IdUtilisateur");
@@ -56,6 +61,7 @@ namespace GestionSalle.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("IdEntraineur,NomComplet,Email,Specialite,Telephone,Statut,IdUtilisateur")] Entraineur entraineur)
         {
             if (ModelState.IsValid)
@@ -69,6 +75,7 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Entraineurs/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -90,6 +97,7 @@ namespace GestionSalle.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("IdEntraineur,NomComplet,Email,Specialite,Telephone,Statut,IdUtilisateur")] Entraineur entraineur)
         {
             if (id != entraineur.IdEntraineur)
@@ -122,6 +130,7 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Entraineurs/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -143,6 +152,7 @@ namespace GestionSalle.Controllers
         // POST: Entraineurs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var entraineur = await _context.Entraineurs.FindAsync(id);

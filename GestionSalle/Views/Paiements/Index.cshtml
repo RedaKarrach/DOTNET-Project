@@ -6,8 +6,17 @@
 
 <h1>Paiements</h1>
 <p>
+ @if (User?.IsInRole("Admin") ?? false)
+ {
  <a asp-action="Create" class="btn btn-success">Nouveau Paiement</a>
+ }
 </p>
+
+@if (!(User?.IsInRole("Admin") ?? false))
+{
+ <div class="alert alert-info">Seuls les administrateurs peuvent créer des paiements.</div>
+}
+
 <div class="table-responsive">
  <table class="table table-hover">
  <thead>

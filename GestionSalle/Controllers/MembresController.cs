@@ -13,14 +13,12 @@ namespace GestionSalle.Controllers
         private readonly IMembreService _service;
         public MembresController(IMembreService service) { _service = service; }
 
-        [AllowAnonymous]
         public async Task<IActionResult> Index(string? q, string? statut)
         {
             var list = await _service.ListMembresAsync();
             return View(list);
         }
 
-        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();

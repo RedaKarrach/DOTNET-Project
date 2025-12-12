@@ -7,8 +7,17 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    @if (User?.IsInRole("Admin") ?? false)
+    {
+        <a asp-action="Create" class="btn btn-success">Create New</a>
+    }
 </p>
+
+@if (!(User?.IsInRole("Admin") ?? false))
+{
+    <div class="alert alert-info">Seuls les administrateurs peuvent créer, modifier ou supprimer des entraîneurs.</div>
+}
+
 <table class="table">
     <thead>
         <tr>
@@ -55,9 +64,14 @@
                 @Html.DisplayFor(modelItem => item.IdUtilisateurNavigation.IdUtilisateur)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IdEntraineur">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IdEntraineur">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdEntraineur">Delete</a>
+                <a asp-action="Details" asp-route-id="@item.IdEntraineur">Details</a>
+                @if (User?.IsInRole("Admin") ?? false)
+                {
+                    <text> | </text>
+                    <a asp-action="Edit" asp-route-id="@item.IdEntraineur">Edit</a>
+                    <text> | </text>
+                    <a asp-action="Delete" asp-route-id="@item.IdEntraineur">Delete</a>
+                }
             </td>
         </tr>
 }
