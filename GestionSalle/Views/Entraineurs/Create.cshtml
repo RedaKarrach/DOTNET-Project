@@ -1,50 +1,57 @@
-﻿@model GestionSalle.Models.Entraineur
+﻿@model GestionSalle.DTOs.EntraineurCreateDto
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Créer un Entraîneur";
 }
 
-<h1>Create</h1>
+<h1>Créer un Entraîneur</h1>
 
-<h4>Entraineur</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="NomComplet" class="control-label"></label>
-                <input asp-for="NomComplet" class="form-control" />
-                <span asp-validation-for="NomComplet" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Specialite" class="control-label"></label>
-                <input asp-for="Specialite" class="form-control" />
-                <span asp-validation-for="Specialite" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Telephone" class="control-label"></label>
-                <input asp-for="Telephone" class="form-control" />
-                <span asp-validation-for="Telephone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdUtilisateur" class="control-label"></label>
-                <select asp-for="IdUtilisateur" class ="form-control" asp-items="ViewBag.IdUtilisateur"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+    <div class="col-md-6">
+ <form asp-action="Create" method="post">
+  <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+ 
+     <div class="mb-3">
+    <label asp-for="NomComplet" class="form-label"></label>
+      <input asp-for="NomComplet" class="form-control" placeholder="Ex: Jean Dupont" />
+    <span asp-validation-for="NomComplet" class="text-danger"></span>
+          </div>
+  
+   <div class="mb-3">
+    <label asp-for="Email" class="form-label"></label>
+ <input asp-for="Email" class="form-control" type="email" placeholder="Ex: jean.dupont@example.com" />
+ <span asp-validation-for="Email" class="text-danger"></span>
+<small class="form-text text-muted">Un compte utilisateur sera créé automatiquement avec cet email</small>
+  </div>
+     
+    <div class="mb-3">
+   <label asp-for="Telephone" class="form-label"></label>
+        <input asp-for="Telephone" class="form-control" type="tel" placeholder="Ex: +212 6 12 34 56 78" />
+         <span asp-validation-for="Telephone" class="text-danger"></span>
+  </div>
+      
+      <div class="mb-3">
+  <label asp-for="Specialite" class="form-label"></label>
+     <select asp-for="Specialite" class="form-control" asp-items="@(ViewData["Specialites"] as IEnumerable<SelectListItem>)">
+   <option value="">-- Sélectionner une spécialité --</option>
+      </select>
+          <span asp-validation-for="Specialite" class="text-danger"></span>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
+            
+ <div class="mt-4">
+   <button type="submit" class="btn btn-success">💾 Créer l'Entraîneur</button>
+      <a asp-action="Index" class="btn btn-secondary ms-2">← Retour à la liste</a>
+     </div>
+   </form>
+ </div>
+    
+    <div class="col-md-6">
+        <div class="alert alert-info">
+    <h5>ℹ️ Information</h5>
+ <p>Un compte utilisateur sera créé automatiquement pour cet entraîneur.</p>
+      </div>
+  </div>
 </div>
 
 @section Scripts {

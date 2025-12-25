@@ -4,6 +4,22 @@
  ViewData["Title"] = "Membres";
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+ </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+ <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="d-flex justify-content-between align-items-center mb-3">
  <h1>Membres</h1>
  <div class="d-flex gap-2">
@@ -47,12 +63,7 @@
  @if (User?.IsInRole("Admin") ?? false)
  {
  <a asp-action="Edit" asp-route-id="@item.IdMembre" class="me-2">Edit</a>
-
- <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">
- <input type="hidden" name="id" value="@item.IdMembre" />
- @Html.AntiForgeryToken()
- <button type="submit" class="btn btn-link p-0 text-danger">Delete</button>
- </form>
+ <a asp-action="Delete" asp-route-id="@item.IdMembre" class="me-2 text-danger">Delete</a>
  }
  </td>
  </tr>

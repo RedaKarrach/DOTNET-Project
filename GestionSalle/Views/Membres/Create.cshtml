@@ -1,63 +1,94 @@
-ï»¿@model GestionSalle.Models.Membre
+@model GestionSalle.DTOs.MembreCreateDto
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Créer un Membre";
 }
 
-<h1>Create</h1>
+<div class="container mt-4 mb-5">
+    <h1 class="mb-4">Créer un Membre</h1>
 
-<h4>Membre</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="NomComplet" class="control-label"></label>
-                <input asp-for="NomComplet" class="form-control" />
-                <span asp-validation-for="NomComplet" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Telephone" class="control-label"></label>
-                <input asp-for="Telephone" class="form-control" />
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+           <div class="card-body">
+    <form asp-action="Create" method="post">
+           <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+ 
+             <div class="row">
+         <div class="col-md-6 mb-3">
+   <label asp-for="NomComplet" class="form-label"></label>
+      <input asp-for="NomComplet" class="form-control" placeholder="Ex: Marie Martin" />
+        <span asp-validation-for="NomComplet" class="text-danger"></span>
+  </div>
+
+       <div class="col-md-6 mb-3">
+   <label asp-for="Email" class="form-label"></label>
+ <input asp-for="Email" class="form-control" type="email" placeholder="Ex: marie.martin@example.com" />
+           <span asp-validation-for="Email" class="text-danger"></span>
+       </div>
+   </div>
+
+        <div class="row">
+        <div class="col-md-6 mb-3">
+       <label asp-for="Telephone" class="form-label"></label>
+    <input asp-for="Telephone" class="form-control" type="tel" placeholder="Ex: +212 6 12 34 56 78" />
                 <span asp-validation-for="Telephone" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Sexe" class="control-label"></label>
-                <input asp-for="Sexe" class="form-control" />
-                <span asp-validation-for="Sexe" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Adresse" class="control-label"></label>
-                <input asp-for="Adresse" class="form-control" />
-                <span asp-validation-for="Adresse" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdPlan" class="control-label"></label>
-                <select asp-for="IdPlan" class ="form-control" asp-items="ViewBag.IdPlan"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdEntraineur" class="control-label"></label>
-                <select asp-for="IdEntraineur" class ="form-control" asp-items="ViewBag.IdEntraineur"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdUtilisateur" class="control-label"></label>
-                <select asp-for="IdUtilisateur" class ="form-control" asp-items="ViewBag.IdUtilisateur"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+ 
+ <div class="col-md-6 mb-3">
+          <label asp-for="Sexe" class="form-label"></label>
+           <select asp-for="Sexe" class="form-control">
+     <option value="">-- Sélectionner --</option>
+      <option value="Homme">Homme</option>
+         <option value="Femme">Femme</option>
+          <option value="Autre">Autre</option>
+        </select>
+             <span asp-validation-for="Sexe" class="text-danger"></span>
+       </div>
+          </div>
+ 
+         <div class="mb-3">
+     <label asp-for="Adresse" class="form-label"></label>
+       <textarea asp-for="Adresse" class="form-control" rows="2" placeholder="Ex: 123 Rue Example, Casablanca"></textarea>
+ <span asp-validation-for="Adresse" class="text-danger"></span>
+          </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+ <div class="row">
+  <div class="col-md-6 mb-3">
+              <label asp-for="IdPlan" class="form-label">Type de plan (optionnel)</label>
+   <select asp-for="IdPlan" class="form-control" asp-items="@(ViewData["Plans"] as IEnumerable<SelectListItem>)">
+   <option value="">-- Aucun plan --</option>
+         </select>
+       </div>
+ 
+      <div class="col-md-6 mb-3">
+     <label asp-for="IdEntraineur" class="form-label">Entraîneur (optionnel)</label>
+          <select asp-for="IdEntraineur" class="form-control" asp-items="@(ViewData["Entraineurs"] as IEnumerable<SelectListItem>)">
+        <option value="">-- Aucun entraîneur --</option>
+</select>
+ </div>
+         </div>
+   
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 mb-3">
+ <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+ <button type="submit" class="btn btn-success">Créer le Membre</button>
+  </div>
+         </form>
+     </div>
+ </div>
+
+   <div class="alert alert-info mt-3">
+        <h6 class="alert-heading">?? Information</h6>
+     <p class="mb-2">Un compte utilisateur sera créé automatiquement pour ce membre avec :</p>
+        <ul class="mb-0">
+     <li><strong>Nom d'utilisateur</strong> : partie avant @@ de l'email</li>
+         <li><strong>Mot de passe temporaire</strong> : sera généré automatiquement</li>
+          <li><strong>Rôle</strong> : User</li>
+   </ul>
+ </div>
+ </div>
+    </div>
 </div>
 
 @section Scripts {

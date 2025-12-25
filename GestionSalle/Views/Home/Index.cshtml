@@ -1,35 +1,326 @@
-﻿@{
-    ViewData["Title"] = "Accueil";
+﻿@model GestionSalle.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Accueil - GestionSalle";
 }
 
-<div class="container text-center">
-    <div class="hero p-4 mb-4">
-        <h1 class="display-4">Bienvenue à GestionSalle</h1>
-        <p class="lead">Gérez vos membres, entraîneurs et paiements facilement.</p>
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <a asp-controller="Membres" asp-action="Index" class="btn btn-primary btn-lg">Voir les membres</a>
-            <a asp-controller="Entraineurs" asp-action="Index" class="btn btn-outline-secondary btn-lg">Voir les entraîneurs</a>
-        </div>
-    </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/home-fix.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card p-4 mb-3 text-center">
-                <h4>Membres</h4>
-                <p class="h2">@(Model ?? "—")</p>
-            </div>
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center justify-content-center py-5">
+     <div class="col-lg-5 col-md-6 text-white mb-4 mb-lg-0">
+   <h1 class="display-4 fw-bold mb-3">
+  Bienvenue à <span class="text-gradient">GestionSalle</span>
+    </h1>
+      <p class="lead mb-4">
+       Votre solution complète pour la gestion de salle de sport. 
+  Gérez vos membres, entraîneurs, paiements et séances en toute simplicité.
+        </p>
+      
+    @if (User?.IsInRole("Admin") ?? false)
+              {
+  <div class="d-flex gap-3 flex-wrap">
+       <a asp-controller="Membres" asp-action="Index" class="btn btn-primary btn-lg">
+     <i class="fas fa-users"></i> Gérer les Membres
+      </a>
+    <a asp-controller="Entraineurs" asp-action="Index" class="btn btn-outline-light btn-lg">
+    <i class="fas fa-dumbbell"></i> Gérer les Entraîneurs
+</a>
+    </div>
+         }
+else
+     {
+   <div>
+ <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">
+ <i class="fas fa-sign-in-alt"></i> Se Connecter
+      </a>
         </div>
-        <div class="col-md-4">
-            <div class="card p-4 mb-3 text-center">
-                <h4>Entraîneurs</h4>
-                <p class="h2">—</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card p-4 mb-3 text-center">
-                <h4>Paiements</h4>
-                <p class="h2">—</p>
-            </div>
-        </div>
+   }
+ </div>
+
+   <div class="col-lg-5 col-md-6 d-none d-md-block">
+<div class="hero-image-container text-center">
+    <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&h=350&fit=crop" 
+          alt="Salle de sport moderne" 
+   class="img-fluid rounded-4 shadow-lg">
+      </div>
+     </div>
+    </div>
     </div>
 </div>
+
+<!-- Dashboard Statistics (Admin only) -->
+@if (User?.IsInRole("Admin") ?? false && Model != null)
+{
+    <div class="dashboard-section">
+        <div class="container">
+         <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold mb-3 text-white">Tableau de Bord</h2>
+         <p class="lead text-white-50">Vue d'ensemble en temps réel de votre salle de sport</p>
+            </div>
+
+      <!-- Statistiques principales -->
+            <div class="row g-4 mb-5">
+     <div class="col-lg-3 col-md-6">
+ <div class="stat-card card">
+         <div class="card-body text-center">
+   <div class="stat-icon">
+ <i class="fas fa-users fa-2x" style="color: var(--primary-color);"></i>
+        </div>
+           <div class="stat-number">@Model.MembresActifs</div>
+      <div class="stat-label">Membres Actifs</div>
+      @if (Model.TauxCroissanceMembres != 0)
+             {
+           <div class="stat-change @(Model.TauxCroissanceMembres > 0 ? "positive" : "negative")">
+         <i class="fas fa-arrow-@(Model.TauxCroissanceMembres > 0 ? "up" : "down")"></i>
+     @Model.TauxCroissanceMembres.ToString("N1")% ce mois
+         </div>
+           }
+       </div>
+        </div>
+            </div>
+
+         <div class="col-lg-3 col-md-6">
+    <div class="stat-card card">
+     <div class="card-body text-center">
+               <div class="stat-icon">
+           <i class="fas fa-dumbbell fa-2x" style="color: var(--success-color);"></i>
+              </div>
+     <div class="stat-number">@Model.TotalEntraineurs</div>
+       <div class="stat-label">Entraîneurs</div>
+        <div class="stat-change" style="color: rgba(255,255,255,0.6);">
+                @Model.EntraineursActifs actifs
+</div>
+    </div>
+   </div>
+   </div>
+
+  <div class="col-lg-3 col-md-6">
+      <div class="stat-card card">
+ <div class="card-body text-center">
+            <div class="stat-icon">
+    <i class="fas fa-money-bill-wave fa-2x" style="color: var(--warning-color);"></i>
+     </div>
+       <div class="stat-number">@Model.RevenuMoisActuel.ToString("N0")</div>
+                  <div class="stat-label">Revenu ce mois (DH)</div>
+@if (Model.TauxCroissanceRevenu != 0)
+              {
+      <div class="stat-change @(Model.TauxCroissanceRevenu > 0 ? "positive" : "negative")">
+               <i class="fas fa-arrow-@(Model.TauxCroissanceRevenu > 0 ? "up" : "down")"></i>
+            @Model.TauxCroissanceRevenu.ToString("N1")%
+             </div>
+      }
+         </div>
+          </div>
+    </div>
+
+            <div class="col-lg-3 col-md-6">
+         <div class="stat-card card">
+        <div class="card-body text-center">
+    <div class="stat-icon">
+              <i class="fas fa-calendar-check fa-2x" style="color: var(--secondary-color);"></i>
+           </div>
+         <div class="stat-number">@Model.SeancesCeMois</div>
+            <div class="stat-label">Séances ce mois</div>
+            <div class="stat-change" style="color: rgba(255,255,255,0.6);">
+     @Model.TotalSeances total
+         </div>
+          </div>
+     </div>
+            </div>
+   </div>
+
+            <!-- Graphiques et statistiques détaillées -->
+       <div class="row g-4 mb-5">
+        <!-- Membres par plan -->
+              <div class="col-lg-6">
+      <div class="chart-card card">
+         <div class="card-header">
+        <h4 class="card-title"><i class="fas fa-chart-pie me-2"></i>Membres par Plan d'Abonnement</h4>
+  </div>
+   <div class="card-body">
+ @if (Model.MembresParPlan.Any())
+       {
+       @foreach (var plan in Model.MembresParPlan.OrderByDescending(p => p.Value))
+   {
+  var percentage = Model.TotalMembres > 0 ? (plan.Value * 100.0 / Model.TotalMembres) : 0;
+     <div class="mb-3">
+     <div class="d-flex justify-content-between mb-2">
+               <span class="text-white fw-bold">@plan.Key</span>
+        <span class="text-white-50">@plan.Value membres (@percentage.ToString("N1")%)</span>
+             </div>
+                   <div class="progress-stat">
+         <div class="progress-bar" style="width: @percentage%"></div>
+     </div>
+          </div>
+      }
+      }
+  else
+       {
+                    <p class="text-white-50 text-center">Aucune donnée disponible</p>
+      }
+               </div>
+         </div>
+      </div>
+
+     <!-- Revenus par plan -->
+      <div class="col-lg-6">
+          <div class="chart-card card">
+        <div class="card-header">
+        <h4 class="card-title"><i class="fas fa-chart-bar me-2"></i>Revenus par Plan (Ce Mois)</h4>
+    </div>
+            <div class="card-body">
+  @if (Model.RevenusParPlan.Any())
+   {
+         var maxRevenu = Model.RevenusParPlan.Max(r => r.Value);
+  @foreach (var revenu in Model.RevenusParPlan.OrderByDescending(r => r.Value))
+{
+   var percentage = maxRevenu > 0 ? (double)(revenu.Value * 100 / maxRevenu) : 0;
+       <div class="mb-3">
+                 <div class="d-flex justify-content-between mb-2">
+     <span class="text-white fw-bold">@revenu.Key</span>
+                   <span class="text-white-50">@revenu.Value.ToString("N2") DH</span>
+            </div>
+      <div class="progress-stat">
+       <div class="progress-bar" style="width: @percentage%"></div>
+     </div>
+     </div>
+     }
+           }
+                else
+              {
+       <p class="text-white-50 text-center">Aucune donnée disponible</p>
+         }
+ </div>
+ </div>
+   </div>
+</div>
+
+          <!-- Top Entraîneurs et Activités Récentes -->
+      <div class="row g-4 mb-5">
+    <!-- Top Entraîneurs -->
+  <div class="col-lg-6">
+      <div class="chart-card card">
+            <div class="card-header">
+     <h4 class="card-title"><i class="fas fa-trophy me-2"></i>Top Entraîneurs</h4>
+                </div>
+       <div class="card-body">
+         @if (Model.TopEntraineurs.Any())
+     {
+     <ul class="top-list">
+                 @for (int i = 0; i < Model.TopEntraineurs.Count; i++)
+    {
+      var entraineur = Model.TopEntraineurs[i];
+             <li class="top-item">
+ <div class="d-flex align-items-center flex-grow-1">
+         <div class="top-rank">@(i + 1)</div>
+  <div class="top-info">
+              <p class="top-name">@entraineur.NomComplet</p>
+           <p class="top-meta">
+               <i class="fas fa-star me-1"></i>@entraineur.Specialite
+            </p>
+          </div>
+      </div>
+       <div class="top-value">
+    <i class="fas fa-users me-1"></i>@entraineur.NombreMembres
+        </div>
+       </li>
+              }
+    </ul>
+   }
+            else
+          {
+                  <p class="text-white-50 text-center">Aucun entraîneur disponible</p>
+              }
+            </div>
+          </div>
+       </div>
+
+      <!-- Activités Récentes -->
+         <div class="col-lg-6">
+    <div class="chart-card card">
+     <div class="card-header">
+     <h4 class="card-title"><i class="fas fa-clock me-2"></i>Activités Récentes</h4>
+ </div>
+      <div class="card-body">
+    @if (Model.ActivitesRecentes.Any())
+        {
+        <ul class="activity-feed">
+         @foreach (var activite in Model.ActivitesRecentes.Take(8))
+      {
+         <li class="activity-item">
+                <div class="activity-icon @activite.BadgeClass">
+<i class="fas @activite.Icon"></i>
+              </div>
+       <div class="activity-content">
+              <p class="activity-description">@activite.Description</p>
+        <p class="activity-date">
+          <i class="far fa-clock me-1"></i>@activite.Date.ToString("dd/MM/yyyy HH:mm")
+     </p>
+     </div>
+       </li>
+       }
+ </ul>
+     }
+     else
+           {
+      <p class="text-white-50 text-center">Aucune activité récente</p>
+              }
+              </div>
+             </div>
+           </div>
+            </div>
+
+   <!-- Métriques supplémentaires -->
+            <div class="metrics-grid">
+                <div class="metric-box">
+          <i class="fas fa-user-plus fa-2x mb-3" style="color: var(--primary-color);"></i>
+   <div class="metric-value">@Model.NouveauxMembresCeMois</div>
+         <div class="metric-label">Nouveaux ce mois</div>
+ </div>
+     <div class="metric-box">
+        <i class="fas fa-calendar-week fa-2x mb-3" style="color: var(--secondary-color);"></i>
+      <div class="metric-value">@Model.NouveauxMembresSemaineActuelle</div>
+              <div class="metric-label">Nouveaux cette semaine</div>
+     </div>
+          <div class="metric-box">
+         <i class="fas fa-credit-card fa-2x mb-3" style="color: var(--warning-color);"></i>
+         <div class="metric-value">@Model.NombrePaiementsMois</div>
+         <div class="metric-label">Paiements ce mois</div>
+             </div>
+    <div class="metric-box">
+         <i class="fas fa-chart-line fa-2x mb-3" style="color: var(--success-color);"></i>
+          <div class="metric-value">@Model.RevenuAnnuel.ToString("N0") DH</div>
+          <div class="metric-label">Revenu annuel</div>
+        </div>
+      </div>
+
+    <!-- Lien vers les rapports -->
+            <div class="text-center mt-5">
+        <a asp-controller="Paiements" asp-action="Index" class="btn btn-lg btn-primary">
+         <i class="fas fa-file-invoice-dollar me-2"></i>Voir tous les paiements
+  </a>
+    <a asp-controller="Membres" asp-action="Index" class="btn btn-lg btn-outline-light ms-3">
+          <i class="fas fa-users me-2"></i>Gérer les membres
+     </a>
+            </div>
+        </div>
+    </div>
+}
+else if (!(User?.IsInRole("Admin") ?? false))
+{
+    <!-- Features Section pour les non-admin -->
+    <div class="features-section">
+        <!-- ...existing code... -->
+ </div>
+
+    <!-- Gallery Section -->
+    <div class="gallery-section">
+        <!-- ...existing code... -->
+    </div>
+}

@@ -4,6 +4,22 @@
  ViewData["Title"] = "Paiements";
 }
 
+@if (TempData["Success"] != null)
+{
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+     @TempData["Success"]
+ <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <h1>Paiements</h1>
 <p>
  @if (User?.IsInRole("Admin") ?? false)
@@ -26,6 +42,7 @@
  <th>Montant</th>
  <th>Date</th>
  <th>Méthode</th>
+ <th></th>
  </tr>
  </thead>
  <tbody>
@@ -33,9 +50,16 @@
  <tr>
  <td>@p.IdPaiement</td>
  <td>@p.MembreNom</td>
- <td>@p.Montant</td>
+ <td>@p.Montant.ToString("N2") DH</td>
  <td>@p.DatePaiement.ToString("g")</td>
  <td>@p.Methode</td>
+ <td>
+ @if (User?.IsInRole("Admin") ?? false)
+ {
+ <a asp-action="Edit" asp-route-id="@p.IdPaiement" class="me-2">Edit</a>
+ <a asp-action="Delete" asp-route-id="@p.IdPaiement" class="text-danger">Delete</a>
+ }
+ </td>
  </tr>
 }
  </tbody>

@@ -17,8 +17,11 @@
  <span asp-validation-for="IdMembre" class="text-danger"></span>
  </div>
  <div class="mb-3">
- <label asp-for="Montant" class="form-label"></label>
- <input asp-for="Montant" class="form-control" />
+ <label asp-for="Montant" class="form-label">Montant (DH)</label>
+ <div class="input-group">
+   <input asp-for="Montant" class="form-control" type="number" step="0.01" placeholder="Ex: 500.00" />
+  <span class="input-group-text">DH</span>
+        </div>
  <span asp-validation-for="Montant" class="text-danger"></span>
  </div>
  <div class="mb-3">
@@ -29,4 +32,9 @@
  <span asp-validation-for="Methode" class="text-danger"></span>
  </div>
  <button type="submit" class="btn btn-primary">Enregistrer</button>
+ <a asp-action="Index" class="btn btn-secondary ms-2">Retour à la liste</a>
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

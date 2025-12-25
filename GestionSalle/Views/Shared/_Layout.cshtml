@@ -1,74 +1,143 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GestionSalle</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/GestionSalle.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/global-fix.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/form-visibility.css" asp-append-version="true" />
     @RenderSection("Styles", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">GestionSalle</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Membres" asp-action="Index">Membres</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Entraineurs" asp-action="Index">Entraineurs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Utilisateurs" asp-action="Index">Utilisateurs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Paiements" asp-action="Index">Paiements</a>
-                        </li>
-                    </ul>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark">
+   <div class="container-fluid">
+  <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+    <i class="fas fa-dumbbell logo-icon"></i>
+     <span class="brand-text">GestionSalle</span>
+</a>
+       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+    aria-expanded="false" aria-label="Toggle navigation">
+   <span class="navbar-toggler-icon"></span>
+    </button>
+ <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+  <ul class="navbar-nav flex-grow-1">
+       <li class="nav-item">
+  <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+   <i class="fas fa-home"></i> Accueil
+  </a>
+ </li>
+  @if (User?.IsInRole("Admin") ?? false)
+   {
+    <li class="nav-item">
+         <a class="nav-link" asp-controller="Home" asp-action="Index">
+<i class="fas fa-chart-line"></i> Dashboard
+        </a>
+          </li>
+   <li class="nav-item">
+  <a class="nav-link" asp-controller="Membres" asp-action="Index">
+   <i class="fas fa-users"></i> Membres
+  </a>
+ </li>
+  <li class="nav-item">
+      <a class="nav-link" asp-controller="Entraineurs" asp-action="Index">
+   <i class="fas fa-dumbbell"></i> Entraîneurs
+      </a>
+     </li>
+   <li class="nav-item">
+   <a class="nav-link" asp-controller="Utilisateurs" asp-action="Index">
+     <i class="fas fa-user-cog"></i> Utilisateurs
+         </a>
+       </li>
+ <li class="nav-item">
+     <a class="nav-link" asp-controller="Paiements" asp-action="Index">
+ <i class="fas fa-credit-card"></i> Paiements
+   </a>
+     </li>
+        }
+      </ul>
 
-                    <ul class="navbar-nav">
-                        @if (User?.Identity?.IsAuthenticated ?? false)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Logout">Logout (@User.Identity.Name)</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <ul class="navbar-nav">
+      @if (User?.Identity?.IsAuthenticated ?? false)
+   {
+      <li class="nav-item dropdown">
+ <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+   <i class="fas fa-user-circle"></i> @User.Identity.Name
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+    <li><span class="dropdown-item-text">
+   <i class="fas fa-shield-alt"></i> @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+    </span></li>
+     <li><hr class="dropdown-divider"></li>
+     <li>
+ <a class="dropdown-item" asp-controller="Account" asp-action="Logout">
+    <i class="fas fa-sign-out-alt"></i> Déconnexion
+   </a>
+         </li>
+    </ul>
+   </li>
+      }
+ else
+   {
+        <li class="nav-item">
+    <a class="nav-link btn btn-outline-light" asp-controller="Account" asp-action="Login">
+  <i class="fas fa-sign-in-alt"></i> Connexion
+ </a>
+          </li>
+     }
+    </ul>
+    </div>
+  </div>
+     </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+ 
+    <div class="content-wrapper">
+        <main role="main">
+     @if (ViewContext.RouteData.Values["controller"]?.ToString() != "Home" || 
+    ViewContext.RouteData.Values["action"]?.ToString() != "Index")
+{
+      <div class="container pb-3">
+     @RenderBody()
+      </div>
+     }
+         else
+        {
+       @RenderBody()
+   }
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - GestionSalle - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+    <footer class="footer">
+      <div class="container">
+    <div class="row">
+         <div class="col-md-6">
+ <h5><i class="fas fa-dumbbell"></i> GestionSalle</h5>
+   <p class="mb-0">Votre solution complète de gestion de salle de sport</p>
+</div>
+      <div class="col-md-6 text-md-end">
+  <p class="mb-0">&copy; 2025 - GestionSalle</p>
+      <a asp-area="" asp-controller="Home" asp-action="Privacy" class="footer-link">
+    <i class="fas fa-lock"></i> Confidentialité
+  </a>
+           </div>
+   </div>
+ </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <!-- Animated Background -->
+    <div class="animated-bg">
+     <div class="bg-circle circle-1"></div>
+  <div class="bg-circle circle-2"></div>
+ <div class="bg-circle circle-3"></div>
+    </div>
+
+ <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

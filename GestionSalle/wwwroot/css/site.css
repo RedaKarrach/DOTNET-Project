@@ -17,8 +17,9 @@ html {
   min-height: 100%;
 }
 
+/* Removed margin-bottom from body - conflicts with custom layout */
 body {
-  margin-bottom: 60px;
+  margin-bottom: 0;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -27,5 +28,5 @@ body {
 }
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+text-align: start;
 }

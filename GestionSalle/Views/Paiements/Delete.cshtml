@@ -1,0 +1,50 @@
+@model GestionSalle.DTOs.PaiementListDto
+
+@{
+ ViewData["Title"] = "Supprimer Paiement";
+}
+
+<div class="container mt-4">
+    <h1 class="text-danger mb-4">Supprimer un Paiement</h1>
+
+    <div class="alert alert-warning">
+ <h5><i class="fas fa-exclamation-triangle"></i> Attention !</h5>
+        <p class="mb-0">Êtes-vous sûr de vouloir supprimer ce paiement ? Cette action est irréversible.</p>
+    </div>
+
+    <div class="card shadow-sm">
+ <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Détails du Paiement</h4>
+        </div>
+        <div class="card-body">
+ <dl class="row">
+ <dt class="col-sm-3">ID Paiement</dt>
+ <dd class="col-sm-9">@Model.IdPaiement</dd>
+ 
+ <dt class="col-sm-3">Membre</dt>
+ <dd class="col-sm-9">@Model.MembreNom</dd>
+ 
+ <dt class="col-sm-3">Montant</dt>
+ <dd class="col-sm-9"><strong class="text-success">@Model.Montant.ToString("N2") DH</strong></dd>
+ 
+ <dt class="col-sm-3">Date de Paiement</dt>
+ <dd class="col-sm-9">@Model.DatePaiement.ToString("dd/MM/yyyy à HH:mm")</dd>
+ 
+ <dt class="col-sm-3">Méthode</dt>
+ <dd class="col-sm-9">@Model.Methode</dd>
+ </dl>
+        </div>
+    </div>
+
+    <div class="mt-4">
+ <form method="post" class="d-inline-block me-2">
+       @Html.AntiForgeryToken()
+      <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous absolument sûr de vouloir supprimer ce paiement ? Cette action ne peut pas être annulée.');">
+        <i class="fas fa-trash"></i> Supprimer Définitivement
+    </button>
+ </form>
+    <a asp-action="Index" class="btn btn-secondary">
+   <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+    </div>
+</div>

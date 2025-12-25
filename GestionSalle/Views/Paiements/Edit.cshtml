@@ -1,0 +1,49 @@
+@model GestionSalle.DTOs.PaiementUpdateDto
+
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+ ViewData["Title"] = "Modifier Paiement";
+}
+
+<h1>Modifier Paiement</h1>
+
+<form asp-action="Edit" method="post">
+ <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+ <input type="hidden" name="id" value="@ViewData["IdPaiement"]" />
+ 
+ <div class="mb-3">
+ <label asp-for="IdMembre" class="form-label">Membre</label>
+ <select asp-for="IdMembre" class="form-control" asp-items="@(ViewData["Membres"] as IEnumerable<SelectListItem>)">
+ <option value="">-- Sélectionner un membre --</option>
+ </select>
+ <span asp-validation-for="IdMembre" class="text-danger"></span>
+ </div>
+ 
+ <div class="mb-3">
+ <label asp-for="Montant" class="form-label">Montant (DH)</label>
+<div class="input-group">
+       <input asp-for="Montant" class="form-control" type="number" step="0.01" placeholder="Ex: 500.00" />
+  <span class="input-group-text">DH</span>
+        </div>
+ <span asp-validation-for="Montant" class="text-danger"></span>
+ </div>
+ 
+ <div class="mb-3">
+ <label asp-for="Methode" class="form-label">Méthode</label>
+ <select asp-for="Methode" class="form-control" asp-items="@(ViewData["Methodes"] as IEnumerable<SelectListItem>)">
+ <option value="">-- Sélectionner une méthode --</option>
+ </select>
+ <span asp-validation-for="Methode" class="text-danger"></span>
+ </div>
+ 
+ @Html.AntiForgeryToken()
+ 
+ <div class="mt-4">
+ <button type="submit" class="btn btn-primary">Enregistrer</button>
+ <a asp-action="Index" class="btn btn-secondary ms-2">Retour à la liste</a>
+ </div>
+</form>
+
+@section Scripts {
+ @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

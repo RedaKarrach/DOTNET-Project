@@ -62,7 +62,7 @@ public partial class SalleDbContext : DbContext
 
             entity.HasOne(d => d.IdUtilisateurNavigation).WithMany(p => p.Entraineurs)
                 .HasForeignKey(d => d.IdUtilisateur)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)  // Enable cascade delete
                 .HasConstraintName("FK__Entraineu__idUti__76969D2E");
         });
 
@@ -110,15 +110,17 @@ public partial class SalleDbContext : DbContext
 
             entity.HasOne(d => d.IdEntraineurNavigation).WithMany(p => p.Membres)
                 .HasForeignKey(d => d.IdEntraineur)
+                .OnDelete(DeleteBehavior.SetNull)  // Set to null when entraineur is deleted
                 .HasConstraintName("FK__Membre__idEntrai__7F2BE32F");
 
             entity.HasOne(d => d.IdPlanNavigation).WithMany(p => p.Membres)
                 .HasForeignKey(d => d.IdPlan)
+                .OnDelete(DeleteBehavior.SetNull)  // Set to null when plan is deleted
                 .HasConstraintName("FK__Membre__idPlan__7E37BEF6");
 
             entity.HasOne(d => d.IdUtilisateurNavigation).WithMany(p => p.Membres)
                 .HasForeignKey(d => d.IdUtilisateur)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)  // Enable cascade delete
                 .HasConstraintName("FK__Membre__idUtilis__00200768");
         });
 
@@ -147,7 +149,7 @@ public partial class SalleDbContext : DbContext
 
             entity.HasOne(d => d.IdMembreNavigation).WithMany(p => p.Paiements)
                 .HasForeignKey(d => d.IdMembre)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)  // Enable cascade delete
                 .HasConstraintName("FK__Paiement__idMemb__0E6E26BF");
         });
 
@@ -193,10 +195,12 @@ public partial class SalleDbContext : DbContext
 
             entity.HasOne(d => d.IdEntraineurNavigation).WithMany(p => p.Seances)
                 .HasForeignKey(d => d.IdEntraineur)
+                .OnDelete(DeleteBehavior.SetNull)  // Set to null when entraineur is deleted
                 .HasConstraintName("FK__Seance__idEntrai__03F0984C");
 
             entity.HasOne(d => d.IdMembreNavigation).WithMany(p => p.Seances)
                 .HasForeignKey(d => d.IdMembre)
+                .OnDelete(DeleteBehavior.Cascade)  // Enable cascade delete
                 .HasConstraintName("FK__Seance__idMembre__02FC7413");
         });
 

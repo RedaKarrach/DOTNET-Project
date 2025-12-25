@@ -4,7 +4,6 @@ using GestionSalle.Repositories;
 using GestionSalle.Services;
 using GestionSalle.Filters;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,15 +12,6 @@ builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<GlobalExceptionFilter>();
 });
-
-// Enforce authentication by default (mask pages until login)
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
-
 // Configure Entity Framework Core
 builder.Services.AddDbContext<SalleDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -32,6 +22,7 @@ builder.Services.AddScoped<IMembreRepository, MembreRepository>();
 builder.Services.AddScoped<IPaiementRepository, PaiementRepository>();
 builder.Services.AddScoped<IMembreService, MembreService>();
 builder.Services.AddScoped<IPaiementService, PaiementService>();
+builder.Services.AddScoped<IEntraineurService, EntraineurService>();
 builder.Services.AddScoped<IUtilisateurService, UtilisateurService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 
@@ -40,7 +31,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/AccessDenied";
         options.Cookie.Name = "GestionSalleAuth";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
     });
@@ -52,7 +42,7 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// Seed default admin if missing
+// Seed default admin if missing and default plans
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -62,6 +52,7 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<SalleDbContext>();
         context.Database.Migrate();
 
+        // Seed admin user
         var pwdSvc = services.GetRequiredService<IPasswordService>();
         var repo = services.GetRequiredService<IRepository<GestionSalle.Models.Utilisateur>>();
         var users = await repo.GetAllAsync();
@@ -71,6 +62,51 @@ using (var scope = app.Services.CreateScope())
             await repo.AddAsync(admin);
             await repo.SaveChangesAsync();
             logger.LogInformation("Seeded admin user");
+        }
+
+        // Seed default plans if missing
+        var planRepo = services.GetRequiredService<IRepository<GestionSalle.Models.PlanAbonnement>>();
+        var existingPlans = await planRepo.GetAllAsync();
+        if (!existingPlans.Any())
+        {
+            var defaultPlans = new List<GestionSalle.Models.PlanAbonnement>
+            {
+                new GestionSalle.Models.PlanAbonnement
+                {
+                    Nom = "Plan Basique",
+                    Description = "Accès à la salle de sport avec équipements de base",
+                    Prix = 200,
+                    DureeEnMois = 1
+                },
+                new GestionSalle.Models.PlanAbonnement
+                {
+                    Nom = "Plan Standard",
+                    Description = "Accès à la salle + cours collectifs",
+                    Prix = 500,
+                    DureeEnMois = 3
+                },
+                new GestionSalle.Models.PlanAbonnement
+                {
+                    Nom = "Plan Premium",
+                    Description = "Accès complet + entraîneur personnel + cours collectifs",
+                    Prix = 1500,
+                    DureeEnMois = 6
+                },
+                new GestionSalle.Models.PlanAbonnement
+                {
+                    Nom = "Plan Annuel",
+                    Description = "Accès complet pour toute l'année avec tous les services",
+                    Prix = 2500,
+                    DureeEnMois = 12
+                }
+            };
+
+            foreach (var plan in defaultPlans)
+            {
+                await planRepo.AddAsync(plan);
+            }
+            await planRepo.SaveChangesAsync();
+            logger.LogInformation($"Seeded {defaultPlans.Count} default plans");
         }
     }
     catch (Exception ex)

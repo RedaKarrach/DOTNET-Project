@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace GestionSalle.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class UtilisateursController : Controller
     {
         private readonly SalleDbContext _context;
@@ -21,14 +21,12 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Utilisateurs
-        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Utilisateurs.ToListAsync());
         }
 
         // GET: Utilisateurs/Details/5
-        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -47,7 +45,6 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Utilisateurs/Create
-        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -58,7 +55,6 @@ namespace GestionSalle.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("IdUtilisateur,NomUtilisateur,MotDePasse,Role,DateCreation")] Utilisateur utilisateur)
         {
             if (ModelState.IsValid)
@@ -71,7 +67,6 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Utilisateurs/Edit/5
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -92,7 +87,6 @@ namespace GestionSalle.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("IdUtilisateur,NomUtilisateur,MotDePasse,Role,DateCreation")] Utilisateur utilisateur)
         {
             if (id != utilisateur.IdUtilisateur)
@@ -124,7 +118,6 @@ namespace GestionSalle.Controllers
         }
 
         // GET: Utilisateurs/Delete/5
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -133,29 +126,93 @@ namespace GestionSalle.Controllers
             }
 
             var utilisateur = await _context.Utilisateurs
-                .FirstOrDefaultAsync(m => m.IdUtilisateur == id);
+     .Include(u => u.Entraineurs)
+           .Include(u => u.Membres)
+  .ThenInclude(m => m.Paiements)  // Include payments for cascade info
+ .Include(u => u.Membres)
+       .ThenInclude(m => m.Seances)   // Include sessions for cascade info
+          .FirstOrDefaultAsync(m => m.IdUtilisateur == id);
             if (utilisateur == null)
-            {
-                return NotFound();
-            }
+      {
+           return NotFound();
+   }
 
-            return View(utilisateur);
+ // Count total related records for information
+     int totalEntraineurs = utilisateur.Entraineurs?.Count ?? 0;
+        int totalMembres = utilisateur.Membres?.Count ?? 0;
+        int totalPaiements = utilisateur.Membres?.Sum(m => m.Paiements?.Count ?? 0) ?? 0;
+     int totalSeances = utilisateur.Membres?.Sum(m => m.Seances?.Count ?? 0) ?? 0;
+
+    // Pass information to view about what will be deleted
+ViewBag.HasEntraineurs = totalEntraineurs > 0;
+            ViewBag.HasMembres = totalMembres > 0;
+            ViewBag.EntraineursCount = totalEntraineurs;
+   ViewBag.MembresCount = totalMembres;
+ViewBag.PaiementsCount = totalPaiements;
+    ViewBag.SeancesCount = totalSeances;
+            ViewBag.WillCascadeDelete = true; // Indicate this will cascade delete
+
+     return View(utilisateur);
         }
 
-        // POST: Utilisateurs/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Utilisateurs/Delete
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var utilisateur = await _context.Utilisateurs.FindAsync(id);
-            if (utilisateur != null)
-            {
-                _context.Utilisateurs.Remove(utilisateur);
-            }
+            try
+{
+       // Get the utilisateur with all related data for cascade deletion
+        var utilisateur = await _context.Utilisateurs
+           .Include(u => u.Entraineurs)
+      .Include(u => u.Membres)
+     .ThenInclude(m => m.Paiements)
+            .Include(u => u.Membres)
+       .ThenInclude(m => m.Seances)
+       .FirstOrDefaultAsync(u => u.IdUtilisateur == id);
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+   if (utilisateur == null)
+    {
+          TempData["Error"] = "Utilisateur not found";
+          return RedirectToAction(nameof(Index));
+      }
+
+     // Count what will be deleted for logging
+            int totalEntraineurs = utilisateur.Entraineurs?.Count ?? 0;
+          int totalMembres = utilisateur.Membres?.Count ?? 0;
+     int totalPaiements = utilisateur.Membres?.Sum(m => m.Paiements?.Count ?? 0) ?? 0;
+     int totalSeances = utilisateur.Membres?.Sum(m => m.Seances?.Count ?? 0) ?? 0;
+
+   // With cascade delete enabled in DbContext, this will automatically delete:
+        // - All related Entraineurs
+         // - All related Membres 
+                // - All Paiements of those Membres
+                // - All Seances of those Membres
+      _context.Utilisateurs.Remove(utilisateur);
+        await _context.SaveChangesAsync();
+
+// Build success message showing what was deleted
+      var deletedItems = new List<string>();
+  if (totalEntraineurs > 0) deletedItems.Add($"{totalEntraineurs} entraineur(s)");
+       if (totalMembres > 0) deletedItems.Add($"{totalMembres} member(s)");
+     if (totalPaiements > 0) deletedItems.Add($"{totalPaiements} payment(s)");
+          if (totalSeances > 0) deletedItems.Add($"{totalSeances} session(s)");
+
+           string cascadeMessage = deletedItems.Count > 0 
+          ? $" and {string.Join(", ", deletedItems)}"
+   : "";
+
+             TempData["Success"] = $"Utilisateur deleted successfully{cascadeMessage}.";
+ }
+       catch (DbUpdateException)
+        {
+       TempData["Error"] = "Cannot delete utilisateur due to database constraints. Please contact administrator.";
+     }
+    catch (Exception ex)
+      {
+      TempData["Error"] = "An error occurred while deleting the utilisateur: " + ex.Message;
+       }
+      return RedirectToAction(nameof(Index));
         }
 
         private bool UtilisateurExists(int id)

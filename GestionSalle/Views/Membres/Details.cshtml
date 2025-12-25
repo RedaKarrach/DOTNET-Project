@@ -56,19 +56,19 @@
             @Html.DisplayNameFor(model => model.IdEntraineurNavigation)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdEntraineurNavigation.IdEntraineur)
+            @(Model.IdEntraineurNavigation?.NomComplet ?? "Non assigné")
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.IdPlanNavigation)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdPlanNavigation.IdPlan)
+            @(Model.IdPlanNavigation?.Nom ?? "Aucun plan")
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.IdUtilisateurNavigation)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdUtilisateurNavigation.IdUtilisateur)
+            @(Model.IdUtilisateurNavigation?.NomUtilisateur ?? "Non assigné")
         </dd>
     </dl>
 </div>

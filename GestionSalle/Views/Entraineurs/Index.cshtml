@@ -1,79 +1,58 @@
-﻿@model IEnumerable<GestionSalle.Models.Entraineur>
+﻿@model IEnumerable<GestionSalle.DTOs.EntraineurListDto>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Entraineurs";
 }
 
-<h1>Index</h1>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+   @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h1>Entraineurs</h1>
 
 <p>
-    @if (User?.IsInRole("Admin") ?? false)
-    {
-        <a asp-action="Create" class="btn btn-success">Create New</a>
-    }
+    <a asp-action="Create" class="btn btn-success">Nouvel Entraîneur</a>
 </p>
 
-@if (!(User?.IsInRole("Admin") ?? false))
-{
-    <div class="alert alert-info">Seuls les administrateurs peuvent créer, modifier ou supprimer des entraîneurs.</div>
-}
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NomComplet)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Specialite)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telephone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Statut)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdUtilisateurNavigation)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="table-responsive">
+    <table class="table table-hover">
+ <thead>
+   <tr>
+          <th>Nom Complet</th>
+      <th>Email</th>
+        <th>Spécialité</th>
+  <th>Téléphone</th>
+        <th>Statut</th>
+    <th></th>
+       </tr>
+  </thead>
+  <tbody>
 @foreach (var item in Model) {
-        <tr>
+   <tr>
+       <td>@item.NomComplet</td>
+      <td>@item.Email</td>
+        <td><span class="badge bg-primary">@item.Specialite</span></td>
+          <td>@item.Telephone</td>
+      <td>@item.Statut</td>
             <td>
-                @Html.DisplayFor(modelItem => item.NomComplet)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Specialite)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Telephone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Statut)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdUtilisateurNavigation.IdUtilisateur)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.IdEntraineur">Details</a>
-                @if (User?.IsInRole("Admin") ?? false)
-                {
-                    <text> | </text>
-                    <a asp-action="Edit" asp-route-id="@item.IdEntraineur">Edit</a>
-                    <text> | </text>
-                    <a asp-action="Delete" asp-route-id="@item.IdEntraineur">Delete</a>
-                }
-            </td>
-        </tr>
+             <a asp-action="Details" asp-route-id="@item.IdEntraineur" class="me-2">Details</a>
+    <a asp-action="Edit" asp-route-id="@item.IdEntraineur" class="me-2">Edit</a>
+      <a asp-action="Delete" asp-route-id="@item.IdEntraineur" class="me-2 text-danger">Delete</a>
+         </td>
+  </tr>
 }
     </tbody>
-</table>
+    </table>
+</div>

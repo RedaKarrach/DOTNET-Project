@@ -2,45 +2,96 @@
 
 @{
     ViewData["Title"] = "Delete";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+  Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Delete</h1>
 
 <h3>Are you sure you want to delete this?</h3>
+
+@{
+    bool hasRelatedRecords = (ViewBag.HasEntraineurs == true) || (ViewBag.HasMembres == true);
+    bool willCascadeDelete = ViewBag.WillCascadeDelete == true;
+}
+
+@if (hasRelatedRecords && willCascadeDelete)
+{
+    <div class="alert alert-warning">
+        <h5>⚠️ Warning: Cascade Deletion</h5>
+        <p>Deleting this utilisateur will also permanently delete the following related records:</p>
+<ul>
+      @if (ViewBag.HasEntraineurs == true)
+     {
+        <li><strong>@ViewBag.EntraineursCount Entraineur(s)</strong></li>
+    }
+       @if (ViewBag.HasMembres == true)
+       {
+       <li><strong>@ViewBag.MembresCount Member(s)</strong></li>
+            }
+ @if (ViewBag.PaiementsCount > 0)
+         {
+      <li><strong>@ViewBag.PaiementsCount Payment(s)</strong></li>
+ }
+            @if (ViewBag.SeancesCount > 0)
+        {
+                <li><strong>@ViewBag.SeancesCount Session(s)</strong></li>
+         }
+        </ul>
+        <p><strong>This action cannot be undone!</strong></p>
+    </div>
+}
+
 <div>
     <h4>Utilisateur</h4>
-    <hr />
+ <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NomUtilisateur)
+        <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.NomUtilisateur)
         </dt>
-        <dd class = "col-sm-10">
+  <dd class="col-sm-10">
             @Html.DisplayFor(model => model.NomUtilisateur)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MotDePasse)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MotDePasse)
-        </dd>
-        <dt class = "col-sm-2">
+   <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Role)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Role)
+        <dd class="col-sm-10">
+     @Html.DisplayFor(model => model.Role)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.DateCreation)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateCreation)
+        <dd class="col-sm-10">
+ @Html.DisplayFor(model => model.DateCreation)
         </dd>
     </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="IdUtilisateur" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+</div>
+
+<div class="mt-4">
+    @if (hasRelatedRecords && willCascadeDelete)
+    {
+        <div class="alert alert-info mb-3">
+            <p class="mb-0"><strong>Cascade deletion is enabled</strong> - All related records will be automatically deleted.</p>
+  </div>
+  <form method="post" class="d-inline-block me-2">
+    @Html.AntiForgeryToken()
+          <button type="submit" class="btn btn-danger" onclick="return confirm('Are you absolutely sure you want to delete this utilisateur and ALL related records? This action cannot be undone!');">
+     🗑️ Delete (+ All Related Records)
+            </button>
+        </form>
+     <a asp-action="Index" class="btn btn-secondary">
+       ← Back to List
+        </a>
+    }
+  else
+    {
+  <form method="post" class="d-inline-block me-2">
+            @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you absolutely sure you want to delete this utilisateur? This action cannot be undone.');">
+        🗑️ Delete
+ </button>
+        </form>
+        <a asp-action="Index" class="btn btn-secondary">
+      ← Back to List
+        </a>
+    }
 </div>
